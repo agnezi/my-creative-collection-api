@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "plugins": [
+      "@nestjs/swagger"
+    ],
+    "webpack": true
+  },
+  "projects": {
+    "bcrypt-config": {
+      "type": "library",
+      "root": "libs/bcrypt-config",
+      "entryFile": "index",
+      "sourceRoot": "libs/bcrypt-config/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/bcrypt-config/tsconfig.lib.json"
+      }
+    }
+  }
+}
