@@ -5,15 +5,17 @@ import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { UsersModule } from 'src/users/users.module';
 import { jwtConstants } from './constants';
+import { CustomLoggerModule } from 'src/custom-logger/custom-logger.module';
 
 @Module({
   imports: [
+    CustomLoggerModule,
     BcryptConfigModule,
     UsersModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AuthController],

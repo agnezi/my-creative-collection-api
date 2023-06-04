@@ -6,12 +6,16 @@ import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { CustomLoggerService } from './custom-logger/custom-logger.service';
 
 async function bootstrap() {
   const packageJson = JSON.parse(fs.readFileSync('package.json').toString());
   const appVersion = packageJson.version;
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+  app.useLogger(app.get(CustomLoggerService));
   app.use(helmet());
   app.enableCors({
     origin: 'localhost',

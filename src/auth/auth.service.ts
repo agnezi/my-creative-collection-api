@@ -3,6 +3,7 @@ import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { BcryptConfigService } from '@app/bcrypt-config';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
+import { CustomLoggerService } from 'src/custom-logger/custom-logger.service';
 
 @Injectable()
 export class AuthService {
@@ -10,9 +11,11 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private bcryptServiceConfig: BcryptConfigService,
+    private loggerService: CustomLoggerService,
   ) {}
 
   async signIn(userLoginText: string, pass: string): Promise<any> {
+    this.loggerService.log('Log in attempt');
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     let email: string | undefined = undefined;
     let username: string | undefined = undefined;
