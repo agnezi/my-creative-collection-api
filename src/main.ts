@@ -33,6 +33,6 @@ async function bootstrap() {
 
   SwaggerModule.setup('docs', app, document);
   console.log('server started at port 3001');
-  await app.listen(3001);
+  await app.listen(process.env.PORT || 3001);
 }
 bootstrap();
