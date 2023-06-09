@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { CustomLoggerService } from './custom-logger/custom-logger.service';
+import { CustomLoggerService } from './config/custom-logger/custom-logger.service';
 
 async function bootstrap() {
   const packageJson = JSON.parse(fs.readFileSync('package.json').toString());
@@ -32,7 +32,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('docs', app, document);
-
+  console.log('server started at port 3001');
   await app.listen(3001);
 }
 bootstrap();
