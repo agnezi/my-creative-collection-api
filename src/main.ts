@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useLogger(app.get(CustomLoggerService));
   app.use(helmet());
   app.enableCors({
-    origin: 'localhost',
+    origin: '*',
   });
   app.useGlobalPipes(new ValidationPipe());
 
