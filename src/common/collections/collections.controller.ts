@@ -40,7 +40,7 @@ export class CollectionsController {
     return this.collectionsService.collections(user.id);
   }
 
-  @Get('collection/:id')
+  @Get(':id')
   async collection(@Param('id', ParseIntPipe) id: number) {
     return this.collectionsService.collection(id);
   }
