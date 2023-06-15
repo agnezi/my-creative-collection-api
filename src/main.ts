@@ -20,7 +20,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   const config = new DocumentBuilder()
     .setTitle('My creative collection API')
@@ -32,7 +32,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('docs', app, document);
-  console.log('server started at port 3001');
+  console.log(`server started at port ${process.env.PORT}`);
   await app.listen(process.env.PORT || 3001);
 }
 bootstrap();

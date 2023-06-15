@@ -15,5 +15,6 @@ import { ThrottlerGuard } from '@nestjs/throttler';
       useClass: ThrottlerGuard,
     },
   ],
+  exports: [CollectionsService],
 })
 export class CollectionsModule {}

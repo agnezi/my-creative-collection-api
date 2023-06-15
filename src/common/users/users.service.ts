@@ -3,6 +3,7 @@ import type { Prisma, User } from '@prisma/client';
 import { BcryptConfigService } from '@app/bcrypt-config';
 import { Injectable } from '@nestjs/common';
 import { PrismaDbconfigService } from '../../config/prisma-dbconfig/prisma-dbconfig.service';
+import { UpdateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,9 +20,9 @@ export class UsersService {
     });
   }
 
-  async findOne(user: Prisma.UserWhereUniqueInput) {
+  async findOne(id: string) {
     return this.prisma.user.findUnique({
-      where: { id: user.id },
+      where: { id },
       select: {
         name: true,
       },
@@ -43,15 +44,10 @@ export class UsersService {
     });
   }
 
-  async update(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<User> {
-    const { where, data } = params;
-
+  async update(userId: string, body: UpdateUserDto): Promise<User> {
     return this.prisma.user.update({
-      data,
-      where,
+      where: { id: userId },
+      data: body,
     });
   }
 

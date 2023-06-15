@@ -1,8 +1,7 @@
-import { Injectable, Patch } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaDbconfigService } from 'src/config/prisma-dbconfig/prisma-dbconfig.service';
 import { UserJWT } from 'src/common/users/users.dto';
-import { UpdateCollectionDto } from './collections.dto';
 
 @Injectable()
 export class CollectionsService {
@@ -23,19 +22,29 @@ export class CollectionsService {
       where: {
         userId,
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+      },
     });
   }
 
-  async collection(collectionId: number) {
+  async collection(collectionId: string) {
     typeof collectionId;
     return this.prisma.collection.findUnique({
       where: {
         id: collectionId,
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+      },
     });
   }
 
-  async update(collectionId: number, collection: Prisma.CollectionUpdateInput) {
+  async update(collectionId: string, collection: Prisma.CollectionUpdateInput) {
     return this.prisma.collection.update({
       where: {
         id: collectionId,
