@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { CustomLoggerService } from './config/custom-logger/custom-logger.service';
 
@@ -14,6 +14,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+  });
+  app.setGlobalPrefix('api/v1', {
+    exclude: [{ path: 'health', method: RequestMethod.GET }],
   });
   app.useLogger(app.get(CustomLoggerService));
   app.use(helmet());
