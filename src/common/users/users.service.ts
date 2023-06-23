@@ -1,7 +1,7 @@
 import type { Prisma, User } from '@prisma/client';
 
 import { BcryptConfigService } from '@app/bcrypt-config';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaDbconfigService } from '../../config/prisma-dbconfig/prisma-dbconfig.service';
 import { UpdateUserDto } from './users.dto';
 
@@ -30,10 +30,20 @@ export class UsersService {
   }
 
   async create(data: Prisma.UserCreateInput) {
+    const userExists = await this.prisma.user.findMany({
+      where: {
+        OR: [{ email: data.email }, { username: data.username }],
+      },
+    });
+
+    if (userExists.length > 0) {
+      throw new BadRequestException('User already exists');
+    }
+
     const hash = this.bcryptConfigService.hashPassword(data.password);
-    const newUser = { ...data, password: hash };
-    return this.prisma.user.create({
-      data: newUser,
+
+    const newUser = await this.prisma.user.create({
+      data: { ...data, password: hash },
       select: {
         name: true,
         username: true,
@@ -42,6 +52,8 @@ export class UsersService {
         email: true,
       },
     });
+
+    return newUser;
   }
 
   async update(userId: string, body: UpdateUserDto): Promise<User> {

@@ -11,6 +11,7 @@ import { CustomLoggerModule } from './config/custom-logger/custom-logger.module'
 
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThingsModule } from './common/things/things.module';
+
 @Module({
   imports: [
     ThrottlerModule.forRoot({

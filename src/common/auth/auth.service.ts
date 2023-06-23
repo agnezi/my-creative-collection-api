@@ -4,6 +4,7 @@ import { BcryptConfigService } from '@app/bcrypt-config';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/common/users/users.service';
 import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.service';
+import { jwtConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -14,16 +15,16 @@ export class AuthService {
     private loggerService: CustomLoggerService,
   ) {}
 
-  async signIn(userLoginText: string, pass: string): Promise<any> {
+  async signIn(usernameOrEmail: string, pass: string): Promise<any> {
     this.loggerService.log('Log in attempt');
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     let email: string | undefined = undefined;
     let username: string | undefined = undefined;
 
-    if (emailRegex.test(userLoginText)) {
-      email = userLoginText;
+    if (emailRegex.test(usernameOrEmail)) {
+      email = usernameOrEmail;
     } else {
-      username = userLoginText;
+      username = usernameOrEmail;
     }
 
     const user = await this.usersService.findOneAuth({
@@ -47,7 +48,15 @@ export class AuthService {
     const payload = { username: user.username, id: user.id };
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(
+        {},
+        {
+          secret: jwtConstants.secret,
+        },
+      ),
+      user_data_token: await this.jwtService.signAsync(payload, {
+        secret: jwtConstants.userDataTokenSecret,
+      }),
     };
   }
 }

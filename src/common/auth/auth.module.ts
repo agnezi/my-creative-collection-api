@@ -4,7 +4,6 @@ import { BcryptConfigModule } from '@app/bcrypt-config';
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { UsersModule } from 'src/common/users/users.module';
-import { jwtConstants } from './constants';
 import { CustomLoggerModule } from 'src/config/custom-logger/custom-logger.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -16,7 +15,6 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     UsersModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
       signOptions: { expiresIn: '1d' },
     }),
   ],
