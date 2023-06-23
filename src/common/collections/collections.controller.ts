@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/auth/auth.guard';
 import { UserFromToken } from 'src/common/auth/user-from-token.decorator';
 import { UserJWT } from 'src/common/users/users.dto';
@@ -18,6 +18,12 @@ import { CreateCollectionDto, UpdateCollectionDto } from './collections.dto';
 @Controller('collections')
 @UseGuards(AuthGuard)
 @ApiBearerAuth()
+@ApiHeader({
+  name: 'x-user-token',
+  required: true,
+  allowEmptyValue: false,
+  description: 'Custom token with user information',
+})
 export class CollectionsController {
   constructor(private collectionsService: CollectionsService) {}
 

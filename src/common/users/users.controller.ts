@@ -12,6 +12,13 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
+  @Get('me')
+  getProfile(@UserFromToken() user: UserJWT) {
+    return user;
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Get('user')
   async findOne(@UserFromToken() user: UserJWT) {
     return this.usersService.findOne(user.id);
