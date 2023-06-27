@@ -1,4 +1,5 @@
 export const jwtConstants = {
-  secret: process.env.PSW_SECRET as string,
-  userDataTokenSecret: process.env.ID_SECRET as string,
+  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET as string,
+  userDataTokenSecret: process.env.USER_DATA_TOKEN_SECRET as string,
+  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET as string,
 };

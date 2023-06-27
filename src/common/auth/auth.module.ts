@@ -7,15 +7,16 @@ import { UsersModule } from 'src/common/users/users.module';
 import { CustomLoggerModule } from 'src/config/custom-logger/custom-logger.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { PrismaDbconfigModule } from 'src/config/prisma-dbconfig/prisma-dbconfig.module';
 
 @Module({
   imports: [
+    PrismaDbconfigModule,
     CustomLoggerModule,
     BcryptConfigModule,
     UsersModule,
     JwtModule.register({
       global: true,
-      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [AuthController],

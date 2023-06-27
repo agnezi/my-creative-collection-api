@@ -24,6 +24,12 @@ import { CreateCollectionDto, UpdateCollectionDto } from './collections.dto';
   allowEmptyValue: false,
   description: 'Custom token with user information',
 })
+@ApiHeader({
+  name: 'x-refresh-token',
+  required: true,
+  allowEmptyValue: false,
+  description: 'User refresh token',
+})
 export class CollectionsController {
   constructor(private collectionsService: CollectionsService) {}
 

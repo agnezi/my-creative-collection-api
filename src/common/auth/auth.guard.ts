@@ -17,18 +17,19 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const accessToken = this.extractAccessTokenFromHeader(request);
     const userDataToken = this.extractUserDataTokenFromHeader(request);
+    const refreshToken = this.extractRefreshTokenFromHeader(request);
 
-    if (!accessToken) {
-      throw new UnauthorizedException();
-    }
-
-    if (!userDataToken) {
+    if (!accessToken || !userDataToken || !refreshToken) {
       throw new UnauthorizedException();
     }
 
     try {
       await this.jwtService.verifyAsync(accessToken, {
-        secret: jwtConstants.secret,
+        secret: jwtConstants.accessTokenSecret,
+      });
+
+      await this.jwtService.verifyAsync(refreshToken, {
+        secret: jwtConstants.refreshTokenSecret,
       });
 
       const payload = await this.jwtService.verifyAsync(userDataToken, {
@@ -36,7 +37,8 @@ export class AuthGuard implements CanActivate {
       });
 
       request['user'] = { username: payload.username, id: payload.id };
-    } catch {
+    } catch (err) {
+      console.log(err);
       throw new UnauthorizedException();
     }
     return true;
@@ -44,12 +46,16 @@ export class AuthGuard implements CanActivate {
 
   private extractAccessTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-
     return type === 'Bearer' ? token : undefined;
   }
 
   private extractUserDataTokenFromHeader(request: Request): string | undefined {
     const token = request.headers['x-user-token'] as string | undefined;
+    return token;
+  }
+
+  private extractRefreshTokenFromHeader(request: Request): string | undefined {
+    const token = request.headers['x-refresh-token'] as string | undefined;
     return token;
   }
 }
