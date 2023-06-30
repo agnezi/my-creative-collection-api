@@ -23,6 +23,36 @@ export class AuthService {
     private loggerService: CustomLoggerService,
   ) {}
 
+  private async generateNewAccessToken() {
+    return await this.jwtService.signAsync(
+      {},
+      {
+        secret: jwtConstants.accessTokenSecret,
+        expiresIn: '12h',
+      },
+    );
+  }
+
+  private async generateNewRefreshToken() {
+    return await this.jwtService.signAsync(
+      {},
+      {
+        secret: jwtConstants.refreshTokenSecret,
+        expiresIn: '30d',
+      },
+    );
+  }
+
+  private async generateNewUserDataToken(payload: {
+    id: string;
+    username: string;
+  }) {
+    return await this.jwtService.signAsync(payload, {
+      secret: jwtConstants.userDataTokenSecret,
+      expiresIn: '12h',
+    });
+  }
+
   async signIn(usernameOrEmail: string, pass: string): Promise<any> {
     this.loggerService.log('Log in attempt');
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -66,17 +96,8 @@ export class AuthService {
     const payload = { username: user.username, id: user.id };
 
     return {
-      access_token: await this.jwtService.signAsync(
-        {},
-        {
-          secret: jwtConstants.accessTokenSecret,
-          expiresIn: '10s',
-        },
-      ),
-      user_data_token: await this.jwtService.signAsync(payload, {
-        secret: jwtConstants.userDataTokenSecret,
-        expiresIn: '10s',
-      }),
+      access_token: await this.generateNewAccessToken(),
+      user_data_token: await this.generateNewUserDataToken(payload),
       refresh_token: user.refreshToken,
     };
   }
@@ -93,13 +114,7 @@ export class AuthService {
     }
 
     const hash = this.bcryptServiceConfig.hashPassword(data.password);
-    const refreshToken = await this.jwtService.signAsync(
-      {},
-      {
-        secret: jwtConstants.refreshTokenSecret,
-        expiresIn: '150d',
-      },
-    );
+    const refreshToken = await this.generateNewRefreshToken();
 
     const newUser = await this.prisma.user.create({
       data: {
@@ -117,5 +132,31 @@ export class AuthService {
     });
 
     return newUser;
+  }
+
+  async refreshToken({ userToken }: { userToken: string }) {
+    const userFromToken = this.jwtService.decode(userToken);
+
+    if (
+      typeof userFromToken === 'object' &&
+      userFromToken?.username &&
+      userFromToken?.id
+    ) {
+      const newRefreshToken = await this.generateNewRefreshToken();
+
+      const user = await this.usersService.updateRefreshToken(
+        userFromToken.id,
+        newRefreshToken,
+      );
+
+      return {
+        access_token: await this.generateNewAccessToken(),
+        user_data_token: await this.generateNewUserDataToken({
+          id: userFromToken.id,
+          username: userFromToken.username,
+        }),
+        refresh_token: user.refreshToken,
+      };
+    }
   }
 }

@@ -1,35 +1,14 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from 'src/common/auth/auth.guard';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { UserFromToken } from 'src/common/auth/user-from-token.decorator';
 import { UserJWT } from 'src/common/users/users.dto';
 import { CollectionsService } from './collections.service';
 import { CreateCollectionDto, UpdateCollectionDto } from './collections.dto';
+import { Auth } from '../auth/auth.decorator';
 
 @ApiTags('collections')
 @Controller('collections')
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
-@ApiHeader({
-  name: 'x-user-token',
-  required: true,
-  allowEmptyValue: false,
-  description: 'Custom token with user information',
-})
-@ApiHeader({
-  name: 'x-refresh-token',
-  required: true,
-  allowEmptyValue: false,
-  description: 'User refresh token',
-})
+@Auth()
 export class CollectionsController {
   constructor(private collectionsService: CollectionsService) {}
 
