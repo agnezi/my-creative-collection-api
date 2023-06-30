@@ -1,21 +1,13 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
 import { ThingsService } from './things.service';
 import { CreateThingDto, UpdateThingDto } from './things.dto';
+import { Auth } from '../auth/auth.decorator';
 
 @ApiTags('things')
 @Controller('things')
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
+@Auth()
 export class ThingsController {
   constructor(private thingsService: ThingsService) {}
 
