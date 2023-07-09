@@ -30,6 +30,7 @@ async function bootstrap() {
     .setDescription('Documentation with ALL public endpoints')
     .setVersion(appVersion)
     .addBearerAuth()
+    .setExternalDoc('Swagger-Postman', '/docs-json')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
