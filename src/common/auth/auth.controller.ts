@@ -13,7 +13,6 @@ import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './auth.dto';
 import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from './auth.guard';
-import { Request } from 'express';
 import { UserFromToken } from './user-from-token.decorator';
 import { UserJWT } from '../users/users.dto';
 
