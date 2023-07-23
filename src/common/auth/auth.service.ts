@@ -12,6 +12,7 @@ import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.serv
 import { jwtConstants } from './constants';
 import { Prisma } from '@prisma/client';
 import { PrismaDbconfigService } from 'src/config/prisma-dbconfig/prisma-dbconfig.service';
+import { UserJWT } from '../users/users.dto';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +44,7 @@ export class AuthService {
     );
   }
 
-  private async generateNewUserDataToken(payload: {
+  private async generateNewUserToken(payload: {
     id: string;
     username: string;
   }) {
@@ -97,7 +98,7 @@ export class AuthService {
 
     return {
       access_token: await this.generateNewAccessToken(),
-      user_data_token: await this.generateNewUserDataToken(payload),
+      user_token: await this.generateNewUserToken(payload),
       refresh_token: user.refreshToken,
     };
   }
@@ -134,29 +135,25 @@ export class AuthService {
     return newUser;
   }
 
-  async refreshToken({ userToken }: { userToken: string }) {
-    const userFromToken = this.jwtService.decode(userToken);
+  async refreshToken(userData: UserJWT) {
+    const newRefreshToken = await this.generateNewRefreshToken();
 
-    if (
-      typeof userFromToken === 'object' &&
-      userFromToken?.username &&
-      userFromToken?.id
-    ) {
-      const newRefreshToken = await this.generateNewRefreshToken();
+    const user = await this.usersService.updateRefreshToken(
+      userData.id,
+      newRefreshToken,
+    );
 
-      const user = await this.usersService.updateRefreshToken(
-        userFromToken.id,
-        newRefreshToken,
-      );
+    return {
+      access_token: await this.generateNewAccessToken(),
+      user_token: await this.generateNewUserToken({
+        id: userData.id,
+        username: userData.username,
+      }),
+      refresh_token: user.refreshToken,
+    };
+  }
 
-      return {
-        access_token: await this.generateNewAccessToken(),
-        user_data_token: await this.generateNewUserDataToken({
-          id: userFromToken.id,
-          username: userFromToken.username,
-        }),
-        refresh_token: user.refreshToken,
-      };
-    }
+  async forgotPassword(userData: UserJWT) {
+    console.log(userData);
   }
 }

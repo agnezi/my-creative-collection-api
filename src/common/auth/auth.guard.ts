@@ -42,9 +42,11 @@ export class AuthGuard implements CanActivate {
 
       request['user'] = { username: payload.username, id: payload.id };
     } catch (error) {
-      this.authService.refreshToken({
-        userToken: userDataToken,
+      const payload = await this.jwtService.verifyAsync(userDataToken, {
+        secret: jwtConstants.userDataTokenSecret,
       });
+
+      this.authService.refreshToken(payload);
     }
     return true;
   }

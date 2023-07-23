@@ -1,0 +1,9 @@
+services:
+  app:
+    image: node:18-alpine
+    command: sh -c "yarn install && yarn build && node dist/main.js"
+    ports:
+     - 127.0.0.1:3001:3001
+    working_dir: /app
+    volumes:
+      - ./:/app

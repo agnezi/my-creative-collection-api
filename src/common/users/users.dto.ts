@@ -6,6 +6,10 @@ export class UpdateUserDto implements Prisma.UserUpdateInput {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @IsString()
+  @IsOptional()
+  username?: string;
 }
 
 export class UserJWT implements Prisma.UserWhereUniqueInput {

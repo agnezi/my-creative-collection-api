@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Patch,
@@ -12,7 +13,8 @@ import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './auth.dto';
 import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from './auth.guard';
-import { Request } from 'express';
+import { UserFromToken } from './user-from-token.decorator';
+import { UserJWT } from '../users/users.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -48,13 +50,12 @@ export class AuthController {
     description: 'User refresh token',
   })
   @Patch('refresh-token')
-  async refreshToken(@Req() request: Request) {
-    const userToken = request?.headers['x-user-token'];
+  async refreshToken(@UserFromToken() userData: UserJWT) {
+    await this.authService.refreshToken(userData);
+  }
 
-    if (typeof userToken === 'string') {
-      return this.authService.refreshToken({
-        userToken,
-      });
-    }
+  @Get('forgot-password')
+  forgotPassword(@UserFromToken() userData: UserJWT) {
+    return this.authService.forgotPassword(userData);
   }
 }
