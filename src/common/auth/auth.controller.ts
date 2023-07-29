@@ -6,15 +6,14 @@ import {
   HttpStatus,
   Patch,
   Post,
-  Req,
-  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './auth.dto';
-import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from './auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 import { UserFromToken } from './user-from-token.decorator';
-import { UserJWT } from '../users/users.dto';
+import { UserJWT, UserTokensDto } from '../users/users.dto';
+import { UserTokens } from './user-tokens.decorator';
+import { Auth } from './auth.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -35,20 +34,7 @@ export class AuthController {
     return this.authService.signUp(body);
   }
 
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiHeader({
-    name: 'x-user-token',
-    required: true,
-    allowEmptyValue: false,
-    description: 'Custom token with user information',
-  })
-  @ApiHeader({
-    name: 'x-refresh-token',
-    required: true,
-    allowEmptyValue: false,
-    description: 'User refresh token',
-  })
+  @Auth()
   @Patch('refresh-token')
   async refreshToken(@UserFromToken() userData: UserJWT) {
     await this.authService.refreshToken(userData);
@@ -57,5 +43,11 @@ export class AuthController {
   @Get('forgot-password')
   forgotPassword(@UserFromToken() userData: UserJWT) {
     return this.authService.forgotPassword(userData);
+  }
+
+  @Auth()
+  @Get('check-auth')
+  async checkAuth(@UserTokens() tokens: UserTokensDto) {
+    return this.authService.checkAuth(tokens);
   }
 }

@@ -1,40 +1,53 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaDbconfigService } from 'src/config/prisma-dbconfig/prisma-dbconfig.service';
 import { UserJWT } from 'src/common/users/users.dto';
+import { Prisma } from '@prisma/client';
+import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.service';
 
 @Injectable()
 export class CollectionsService {
-  constructor(private prisma: PrismaDbconfigService) {}
+  constructor(
+    private prisma: PrismaDbconfigService,
+    private logger: CustomLoggerService,
+  ) {}
 
-  async create(data: Prisma.CollectionCreateInput, user: UserJWT) {
-    return this.prisma.collection.create({
+  public async create(data: Prisma.CollectionCreateInput, user: UserJWT) {
+    const createdCollection = await this.prisma.collection.create({
       data: {
         title: data.title,
         userId: user.id,
         description: data?.description,
       },
     });
+
+    this.logger.log('create-collection');
+
+    return createdCollection;
   }
 
-  async collections(userId: string) {
-    return this.prisma.collection.findMany({
+  public async collections(userId: string) {
+    const foundCollections = await this.prisma.collection.findMany({
       where: {
         userId,
       },
       select: {
         id: true,
+        things: true,
         title: true,
         description: true,
       },
     });
+
+    this.logger.log('get-all-collections');
+
+    return foundCollections;
   }
 
-  async collection(collectionId: string) {
-    typeof collectionId;
-    return this.prisma.collection.findUnique({
+  public async collection(collectionId: string, user: UserJWT) {
+    const foundCollection = await this.prisma.collection.findFirstOrThrow({
       where: {
         id: collectionId,
+        userId: user.id,
       },
       select: {
         id: true,
@@ -42,10 +55,25 @@ export class CollectionsService {
         description: true,
       },
     });
+
+    this.logger.log('found-collection', collectionId);
+
+    return foundCollection;
   }
 
-  async update(collectionId: string, collection: Prisma.CollectionUpdateInput) {
-    return this.prisma.collection.update({
+  public async update(
+    collectionId: string,
+    collection: Prisma.CollectionUpdateInput,
+    user: UserJWT,
+  ) {
+    await this.prisma.collection.findFirstOrThrow({
+      where: {
+        id: collectionId,
+        userId: user.id,
+      },
+    });
+
+    const updated = await this.prisma.collection.update({
       where: {
         id: collectionId,
       },
@@ -53,5 +81,25 @@ export class CollectionsService {
         ...collection,
       },
     });
+
+    this.logger.log('updated-collection', collectionId);
+
+    return updated;
+  }
+
+  public async delete(id: string, user: UserJWT) {
+    await this.prisma.collection.findFirstOrThrow({
+      where: {
+        id: id,
+        userId: user.id,
+      },
+    });
+
+    await this.prisma.collection.delete({
+      where: {
+        id,
+      },
+    });
+    this.logger.log('delete-for-collection', id);
   }
 }

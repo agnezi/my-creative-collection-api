@@ -12,7 +12,7 @@ import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.serv
 import { jwtConstants } from './constants';
 import { Prisma } from '@prisma/client';
 import { PrismaDbconfigService } from 'src/config/prisma-dbconfig/prisma-dbconfig.service';
-import { UserJWT } from '../users/users.dto';
+import { UserJWT, UserTokensDto } from '../users/users.dto';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +54,22 @@ export class AuthService {
     });
   }
 
-  async signIn(usernameOrEmail: string, pass: string): Promise<any> {
+  private async verifyTokens(payload: UserTokensDto) {
+    const isAuthenticated =
+      (await this.jwtService.verify(payload.access_token, {
+        secret: jwtConstants.accessTokenSecret,
+      })) &&
+      (await this.jwtService.verify(payload.user_data_token, {
+        secret: jwtConstants.userDataTokenSecret,
+      })) &&
+      this.jwtService.verify(payload.refresh_token, {
+        secret: jwtConstants.refreshTokenSecret,
+      });
+
+    return isAuthenticated;
+  }
+
+  public async signIn(usernameOrEmail: string, pass: string): Promise<any> {
     this.loggerService.log('Log in attempt');
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     let email: string | undefined = undefined;
@@ -103,7 +118,7 @@ export class AuthService {
     };
   }
 
-  async signUp(data: Prisma.UserCreateInput) {
+  public async signUp(data: Prisma.UserCreateInput) {
     const userExists = await this.prisma.user.findMany({
       where: {
         OR: [{ email: data.email }, { username: data.username }],
@@ -135,7 +150,7 @@ export class AuthService {
     return newUser;
   }
 
-  async refreshToken(userData: UserJWT) {
+  public async refreshToken(userData: UserJWT) {
     const newRefreshToken = await this.generateNewRefreshToken();
 
     const user = await this.usersService.updateRefreshToken(
@@ -153,7 +168,11 @@ export class AuthService {
     };
   }
 
-  async forgotPassword(userData: UserJWT) {
+  public async forgotPassword(userData: UserJWT) {
     console.log(userData);
+  }
+
+  public async checkAuth(tokens: UserTokensDto) {
+    return this.verifyTokens(tokens);
   }
 }

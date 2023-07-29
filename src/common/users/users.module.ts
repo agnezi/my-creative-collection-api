@@ -5,9 +5,10 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { CustomLoggerModule } from 'src/config/custom-logger/custom-logger.module';
 
 @Module({
-  imports: [PrismaDbconfigModule, BcryptConfigModule],
+  imports: [PrismaDbconfigModule, BcryptConfigModule, CustomLoggerModule],
   controllers: [UsersController],
   providers: [
     UsersService,

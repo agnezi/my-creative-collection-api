@@ -13,7 +13,7 @@ export class ThingsService {
     private collectionsService: CollectionsService,
   ) {}
 
-  async create(data: CreateThingDto) {
+  public async create(data: CreateThingDto) {
     return await this.prisma.thing.create({
       data: {
         collectionId: data.collectionId,
@@ -25,7 +25,7 @@ export class ThingsService {
     });
   }
 
-  async things(collectionId?: string) {
+  public async things(collectionId?: string) {
     return this.prisma.thing.findMany({
       where: {
         collectionId,
@@ -33,7 +33,7 @@ export class ThingsService {
     });
   }
 
-  async update(thingId: string, data: UpdateThingDto) {
+  public async update(thingId: string, data: UpdateThingDto) {
     return this.prisma.thing.update({
       where: {
         id: thingId,

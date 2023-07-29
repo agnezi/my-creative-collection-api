@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserFromToken } from 'src/common/auth/user-from-token.decorator';
 import { UserJWT } from 'src/common/users/users.dto';
@@ -18,8 +26,8 @@ export class CollectionsController {
   }
 
   @Get(':id')
-  async collection(@Param('id') id: string) {
-    return this.collectionsService.collection(id);
+  async collection(@Param('id') id: string, @UserFromToken() user: UserJWT) {
+    return this.collectionsService.collection(id, user);
   }
 
   @Post('create')
@@ -34,7 +42,17 @@ export class CollectionsController {
   async update(
     @Param('id') collectionId: string,
     @Body() collection: UpdateCollectionDto,
+    @UserFromToken() user: UserJWT,
   ) {
-    return this.collectionsService.update(collectionId, collection);
+    return this.collectionsService.update(collectionId, collection, user);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string, @UserFromToken() user: UserJWT) {
+    await this.collectionsService.delete(id, user);
+
+    return {
+      status: 'deleted',
+    };
   }
 }

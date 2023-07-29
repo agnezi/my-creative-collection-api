@@ -30,6 +30,16 @@ async function bootstrap() {
     .setDescription('Documentation with ALL public endpoints')
     .setVersion(appVersion)
     .addBearerAuth()
+    .addSecurity('x-user-token', {
+      type: 'apiKey',
+      name: 'x-user-token',
+      in: 'header',
+    })
+    .addSecurity('x-refresh-token', {
+      type: 'apiKey',
+      name: 'x-refresh-token',
+      in: 'header',
+    })
     .setExternalDoc('Swagger-Postman', '/docs-json')
     .build();
 
