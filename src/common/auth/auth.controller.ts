@@ -14,11 +14,15 @@ import { UserFromToken } from './user-from-token.decorator';
 import { UserJWT, UserTokensDto } from '../users/users.dto';
 import { UserTokens } from './user-tokens.decorator';
 import { Auth } from './auth.decorator';
+import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private customLogger: CustomLoggerService,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
@@ -31,6 +35,7 @@ export class AuthController {
 
   @Post('sign-up')
   async create(@Body() body: SignUpDto) {
+    this.customLogger.log('sign-up-controller', body);
     return this.authService.signUp(body);
   }
 

@@ -1,5 +1,6 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, ThingStatus } from '@prisma/client';
 import {
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -27,6 +28,10 @@ export class CreateThingDto implements Prisma.ThingCreateInput {
   @IsString()
   @IsOptional()
   edition?: string;
+
+  @IsEnum(ThingStatus)
+  @IsOptional()
+  status: ThingStatus;
 }
 
 export class UpdateThingDto implements Prisma.ThingUpdateInput {

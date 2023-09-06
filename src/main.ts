@@ -2,11 +2,11 @@ import * as fs from 'fs';
 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { CustomLoggerService } from './config/custom-logger/custom-logger.service';
+import { AppModule } from './common/app/app.module';
 
 async function bootstrap() {
   const packageJson = JSON.parse(fs.readFileSync('package.json').toString());
@@ -15,6 +15,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
+
   app.setGlobalPrefix('api/v1', {
     exclude: [{ path: 'health', method: RequestMethod.GET }],
   });
@@ -44,9 +45,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-
   SwaggerModule.setup('docs', app, document);
+
   console.log(`server started at port ${process.env.PORT}`);
-  await app.listen(process.env.PORT || 3001);
+
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

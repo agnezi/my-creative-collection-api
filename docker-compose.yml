@@ -1,9 +1,13 @@
 services:
-  app:
-    image: node:18-alpine
-    command: sh -c "yarn install && yarn build && node dist/main.js"
-    ports:
-     - 127.0.0.1:3001:3001
-    working_dir: /app
+  pg:
+    container_name: postgres-db
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: ${PGDATA}
     volumes:
-      - ./:/app
+      - ~/containers/my-creative-collection-api-postgres-db:/data/postgres
+    ports:
+      - '5432:5432'
+    restart: unless-stopped

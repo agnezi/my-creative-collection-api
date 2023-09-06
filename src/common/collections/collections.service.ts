@@ -12,6 +12,7 @@ export class CollectionsService {
   ) {}
 
   public async create(data: Prisma.CollectionCreateInput, user: UserJWT) {
+    this.logger.log('creating-collection');
     const createdCollection = await this.prisma.collection.create({
       data: {
         title: data.title,
@@ -20,8 +21,7 @@ export class CollectionsService {
       },
     });
 
-    this.logger.log('create-collection');
-
+    this.logger.log('created-collection');
     return createdCollection;
   }
 

@@ -13,12 +13,16 @@ import { UserJWT } from 'src/common/users/users.dto';
 import { CollectionsService } from './collections.service';
 import { CreateCollectionDto, UpdateCollectionDto } from './collections.dto';
 import { Auth } from '../auth/auth.decorator';
+import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.service';
 
 @ApiTags('collections')
 @Controller('collections')
 @Auth()
 export class CollectionsController {
-  constructor(private collectionsService: CollectionsService) {}
+  constructor(
+    private collectionsService: CollectionsService,
+    private logger: CustomLoggerService,
+  ) {}
 
   @Get()
   async collections(@UserFromToken() user: UserJWT) {
@@ -35,7 +39,10 @@ export class CollectionsController {
     @Body() body: CreateCollectionDto,
     @UserFromToken() user: UserJWT,
   ) {
-    return this.collectionsService.create(body, user);
+    this.logger.log('request-to-create-collection');
+    const createdCollection = await this.collectionsService.create(body, user);
+    this.logger.log('return-created-collection');
+    return createdCollection;
   }
 
   @Patch(':id')

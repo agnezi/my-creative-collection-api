@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  HttpException,
   HttpStatus,
   Injectable,
   UnauthorizedException,
@@ -12,7 +12,7 @@ import { CustomLoggerService } from 'src/config/custom-logger/custom-logger.serv
 import { jwtConstants } from './constants';
 import { Prisma } from '@prisma/client';
 import { PrismaDbconfigService } from 'src/config/prisma-dbconfig/prisma-dbconfig.service';
-import { UserJWT, UserTokensDto } from '../users/users.dto';
+import { UpdateUserDto, UserJWT, UserTokensDto } from '../users/users.dto';
 
 @Injectable()
 export class AuthService {
@@ -55,18 +55,19 @@ export class AuthService {
   }
 
   private async verifyTokens(payload: UserTokensDto) {
-    const isAuthenticated =
-      (await this.jwtService.verify(payload.access_token, {
-        secret: jwtConstants.accessTokenSecret,
-      })) &&
-      (await this.jwtService.verify(payload.user_data_token, {
-        secret: jwtConstants.userDataTokenSecret,
-      })) &&
-      this.jwtService.verify(payload.refresh_token, {
-        secret: jwtConstants.refreshTokenSecret,
-      });
+    await this.jwtService.verifyAsync(payload.access_token, {
+      secret: jwtConstants.accessTokenSecret,
+    });
 
-    return isAuthenticated;
+    await this.jwtService.verifyAsync(payload.user_data_token, {
+      secret: jwtConstants.userDataTokenSecret,
+    });
+
+    await this.jwtService.verifyAsync(payload.refresh_token, {
+      secret: jwtConstants.refreshTokenSecret,
+    });
+
+    return true;
   }
 
   public async signIn(usernameOrEmail: string, pass: string): Promise<any> {
@@ -119,15 +120,20 @@ export class AuthService {
   }
 
   public async signUp(data: Prisma.UserCreateInput) {
-    const userExists = await this.prisma.user.findMany({
+    this.loggerService.log('sign-up-service');
+
+    const userExists = await this.prisma.user.findFirst({
       where: {
         OR: [{ email: data.email }, { username: data.username }],
       },
     });
 
-    if (userExists.length > 0) {
-      throw new BadRequestException('User already exists');
+    if (userExists) {
+      this.loggerService.log('user-already-exists');
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
+
+    this.loggerService.log('user-not-exists');
 
     const hash = this.bcryptServiceConfig.hashPassword(data.password);
     const refreshToken = await this.generateNewRefreshToken();
@@ -146,7 +152,7 @@ export class AuthService {
         email: true,
       },
     });
-
+    this.loggerService.log('created-user');
     return newUser;
   }
 
@@ -174,5 +180,35 @@ export class AuthService {
 
   public async checkAuth(tokens: UserTokensDto) {
     return this.verifyTokens(tokens);
+  }
+
+  public async update(userId: string, body: UpdateUserDto) {
+    if (
+      (body.newPassword && !body.confirmNewPassword) ||
+      (!body.newPassword && body.confirmNewPassword)
+    )
+      throw new HttpException(
+        'Missing password or confirmPassword',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const hash = this.bcryptServiceConfig.hashPassword(
+      body.newPassword as string,
+    );
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: body.name,
+        password: hash,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    this.loggerService.log('updated-user', userId);
+    return updatedUser;
   }
 }
