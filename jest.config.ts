@@ -1,21 +1,17 @@
-import type { Config } from 'jest';
+import { pathsToModuleNameMapper, type JestConfigWithTsJest } from 'ts-jest';
 
-const config: Config = {
-  verbose: true,
-  moduleFileExtensions: ['js', 'json', 'ts'],
-  rootDir: '.',
-  testRegex: '.*\\.spec\\.ts$',
-  transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
-  },
-  collectCoverageFrom: ['**/*.(t|j)s'],
-  coverageDirectory: './coverage',
+import tsconfig from './tsconfig.json';
+
+const config: JestConfigWithTsJest = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>', '<rootDir>/src/', '<rootDir>/libs/'],
-  moduleNameMapper: {
-    '^@app/bcrypt-config(|/.*)$': '<rootDir>/libs/bcrypt-config/src/$1',
-  },
-  modulePaths: ['<rootDir>'],
+  verbose: true,
+  rootDir: 'src',
+  transformIgnorePatterns: ['<rootDir>/node_modules/'],
+  modulePaths: [tsconfig.compilerOptions.baseUrl],
+  moduleNameMapper: pathsToModuleNameMapper(
+    tsconfig.compilerOptions.paths /*, { prefix: '<rootDir>/' } */,
+  ),
 };
 
 export default config;

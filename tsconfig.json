@@ -1,29 +1,21 @@
 {
   "compilerOptions": {
+    "target": "es6",
     "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
+    "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./src",
     "paths": {
-      "@app/bcrypt-config": [
-        "libs/bcrypt-config/src"
-      ],
-      "@app/bcrypt-config/*": [
-        "libs/bcrypt-config/src/*"
-      ]
+      "users/*": ["users/*"],
+      "boxes/*": ["boxes/*"],
+      "collections/*": ["collections/*"],
+      "things/*": ["things/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }
