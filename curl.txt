@@ -1,0 +1,3 @@
+curl -X POST -H "Content-Type: application/json" -d '{"username": "test", "password": "test", "email": "test@test.com"}' http://localhost:3001/v1/users/sign-up
+
+curl -X GET http://localhost:3001/v1/users/me

@@ -8,14 +8,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
     "baseUrl": "./src",
     "paths": {
       "users/*": ["users/*"],
       "boxes/*": ["boxes/*"],
       "collections/*": ["collections/*"],
       "things/*": ["things/*"]
-    }
+    },
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }

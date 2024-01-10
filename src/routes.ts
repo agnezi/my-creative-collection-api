@@ -1,11 +1,12 @@
-import { boxesRoutes } from 'boxes/boxes.routes';
-import { collectionsRoutes } from 'collections/collections.routes';
+import { boxesRoutes } from 'business/boxes/boxes.routes';
+import { collectionsRoutes } from 'business/collections/collections.routes';
 import express from 'express';
-import { thingsRoutes } from 'things/things.routes';
-import { usersRoutes } from 'users/users.routes';
+import { thingsRoutes } from 'business/things/things.routes';
+import { usersRoutes } from 'business/users/users.routes';
+import { authRoutes } from 'business/auth/auth.routes';
 
 const router = express.Router();
-
+router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
 router.use('/boxes', boxesRoutes);
 router.use('/collections', collectionsRoutes);
