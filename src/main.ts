@@ -19,11 +19,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1', {
     exclude: [{ path: 'health', method: RequestMethod.GET }],
   });
+
   app.useLogger(app.get(CustomLoggerService));
   app.use(helmet());
   app.enableCors({
     origin: '*',
   });
+
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   const config = new DocumentBuilder()
@@ -31,16 +33,6 @@ async function bootstrap() {
     .setDescription('Documentation with ALL public endpoints')
     .setVersion(appVersion)
     .addBearerAuth()
-    .addSecurity('x-user-token', {
-      type: 'apiKey',
-      name: 'x-user-token',
-      in: 'header',
-    })
-    .addSecurity('x-refresh-token', {
-      type: 'apiKey',
-      name: 'x-refresh-token',
-      in: 'header',
-    })
     .setExternalDoc('Swagger-Postman', '/docs-json')
     .build();
 

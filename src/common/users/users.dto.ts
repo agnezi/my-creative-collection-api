@@ -30,12 +30,4 @@ export class UserTokensDto {
   @IsString()
   @IsNotEmpty()
   access_token: string;
-
-  @IsString()
-  @IsNotEmpty()
-  refresh_token: string;
-
-  @IsString()
-  @IsNotEmpty()
-  user_data_token: string;
 }

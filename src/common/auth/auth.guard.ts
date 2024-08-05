@@ -20,38 +20,24 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const accessToken = this.extractAccessTokenFromHeader(request);
-    const userDataToken = this.extractUserDataTokenFromHeader(request);
-    const refreshToken = this.extractRefreshTokenFromHeader(request);
 
-    if (!accessToken || !userDataToken || !refreshToken) {
+    if (!accessToken) {
       throw new UnauthorizedException();
     }
 
     try {
-      await this.jwtService.verifyAsync(accessToken, {
+      const payload = await this.jwtService.verifyAsync(accessToken, {
         secret: jwtConstants.accessTokenSecret,
-      });
-
-      await this.jwtService.verifyAsync(refreshToken, {
-        secret: jwtConstants.refreshTokenSecret,
-      });
-
-      const payload = await this.jwtService.verifyAsync(userDataToken, {
-        secret: jwtConstants.userDataTokenSecret,
       });
 
       request['user'] = { username: payload.username, id: payload.id };
       request['tokens'] = {
         access_token: accessToken,
-        refresh_token: refreshToken,
-        user_data_token: userDataToken,
       };
+      console.log(request['user']);
     } catch (error) {
-      const payload = await this.jwtService.verifyAsync(userDataToken, {
-        secret: jwtConstants.userDataTokenSecret,
-      });
-
-      this.authService.refreshToken(payload);
+      console.log('some error has ocurred with the token');
+      return false;
     }
     return true;
   }
@@ -59,15 +45,5 @@ export class AuthGuard implements CanActivate {
   private extractAccessTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
-  }
-
-  private extractUserDataTokenFromHeader(request: Request): string | undefined {
-    const token = request.headers['x-user-token'] as string | undefined;
-    return token;
-  }
-
-  private extractRefreshTokenFromHeader(request: Request): string | undefined {
-    const token = request.headers['x-refresh-token'] as string | undefined;
-    return token;
   }
 }

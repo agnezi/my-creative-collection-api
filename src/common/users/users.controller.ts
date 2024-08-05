@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto, UserJWT } from './users.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -14,6 +14,7 @@ export class UsersController {
   @Auth()
   @Get('me')
   getProfile(@UserFromToken() user: UserJWT) {
+    console.log(user);
     return user;
   }
 

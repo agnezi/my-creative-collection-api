@@ -24,32 +24,12 @@ export class AuthService {
     private loggerService: CustomLoggerService,
   ) {}
 
-  private async generateNewAccessToken() {
-    return await this.jwtService.signAsync(
-      {},
-      {
-        secret: jwtConstants.accessTokenSecret,
-        expiresIn: '12h',
-      },
-    );
-  }
-
-  private async generateNewRefreshToken() {
-    return await this.jwtService.signAsync(
-      {},
-      {
-        secret: jwtConstants.refreshTokenSecret,
-        expiresIn: '30d',
-      },
-    );
-  }
-
-  private async generateNewUserToken(payload: {
+  private async generateNewAccessToken(payload: {
     id: string;
     username: string;
   }) {
     return await this.jwtService.signAsync(payload, {
-      secret: jwtConstants.userDataTokenSecret,
+      secret: jwtConstants.accessTokenSecret,
       expiresIn: '12h',
     });
   }
@@ -57,14 +37,6 @@ export class AuthService {
   private async verifyTokens(payload: UserTokensDto) {
     await this.jwtService.verifyAsync(payload.access_token, {
       secret: jwtConstants.accessTokenSecret,
-    });
-
-    await this.jwtService.verifyAsync(payload.user_data_token, {
-      secret: jwtConstants.userDataTokenSecret,
-    });
-
-    await this.jwtService.verifyAsync(payload.refresh_token, {
-      secret: jwtConstants.refreshTokenSecret,
     });
 
     return true;
@@ -113,9 +85,7 @@ export class AuthService {
     const payload = { username: user.username, id: user.id };
 
     return {
-      access_token: await this.generateNewAccessToken(),
-      user_token: await this.generateNewUserToken(payload),
-      refresh_token: user.refreshToken,
+      access_token: await this.generateNewAccessToken(payload),
     };
   }
 
@@ -135,14 +105,10 @@ export class AuthService {
 
     this.loggerService.log('user-not-exists');
 
-    const hash = this.bcryptServiceConfig.hashPassword(data.password);
-    const refreshToken = await this.generateNewRefreshToken();
-
     const newUser = await this.prisma.user.create({
       data: {
         ...data,
-        password: hash,
-        refreshToken,
+        password: this.bcryptServiceConfig.hashPassword(data.password),
       },
       select: {
         name: true,
@@ -152,26 +118,11 @@ export class AuthService {
         email: true,
       },
     });
+    this.loggerService.log('hash-created');
+
     this.loggerService.log('created-user');
+
     return newUser;
-  }
-
-  public async refreshToken(userData: UserJWT) {
-    const newRefreshToken = await this.generateNewRefreshToken();
-
-    const user = await this.usersService.updateRefreshToken(
-      userData.id,
-      newRefreshToken,
-    );
-
-    return {
-      access_token: await this.generateNewAccessToken(),
-      user_token: await this.generateNewUserToken({
-        id: userData.id,
-        username: userData.username,
-      }),
-      refresh_token: user.refreshToken,
-    };
   }
 
   public async forgotPassword(userData: UserJWT) {
