@@ -5,7 +5,6 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      PGDATA: ${PGDATA}
     volumes:
       - ~/containers/my-creative-collection-api-postgres-db:/data/postgres
     ports:
